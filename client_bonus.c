@@ -6,7 +6,7 @@
 /*   By: jbremser <jbremser@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/21 14:08:50 by jbremser          #+#    #+#             */
-/*   Updated: 2024/05/24 16:11:53 by jbremser         ###   ########.fr       */
+/*   Updated: 2024/05/24 16:17:14 by jbremser         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,8 +37,6 @@ void	send_signal(int pid, unsigned char character)
 
 void	receive_signal(int signal)
 {
-	// (void)context;
-	// (void)info;
 	if (signal == SIGUSR1)
 	{
 		ft_printf("Server: message received \n");
