@@ -6,15 +6,12 @@
 /*   By: jbremser <jbremser@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/21 14:08:50 by jbremser          #+#    #+#             */
-/*   Updated: 2024/05/24 16:17:14 by jbremser         ###   ########.fr       */
+/*   Updated: 2024/05/30 14:13:20 by jbremser         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft/libft.h"
 #include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 
 void	send_signal(int pid, unsigned char character)
 {
@@ -30,13 +27,15 @@ void	send_signal(int pid, unsigned char character)
 			kill(pid, SIGUSR2);
 		else
 			kill(pid, SIGUSR1);
-		usleep(42);
+		usleep(69);
 		i++;
 	}
 }
 
-void	receive_signal(int signal)
+void	receive_signal(int signal, siginfo_t *info, void *context)
 {
+	(void)info;
+	(void)context;
 	if (signal == SIGUSR1)
 	{
 		ft_printf("Server: message received \n");
@@ -53,7 +52,7 @@ int	main(int argc, char **argv)
 
 	i = 0;
 	client_sa.sa_flags = SA_SIGINFO;
-	client_sa.__sigaction_u.__sa_handler = receive_signal;
+	client_sa.sa_sigaction = receive_signal;
 	sigemptyset(&client_sa.sa_mask);
 	sigaction(SIGUSR1, &client_sa, NULL);
 	if (argc == 3)

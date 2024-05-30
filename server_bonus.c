@@ -6,17 +6,12 @@
 /*   By: jbremser <jbremser@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/21 13:54:07 by jbremser          #+#    #+#             */
-/*   Updated: 2024/05/24 16:12:33 by jbremser         ###   ########.fr       */
+/*   Updated: 2024/05/30 13:48:04 by jbremser         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft/libft.h"
 #include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-
-#define END_TRANSMISSION '\0'
 
 static void	err_ex(char *msg)
 {
@@ -58,27 +53,27 @@ void	handle_signal(int signal, siginfo_t	*info, void	*context)
 	static int				bit_index = 0;
 	static char				*message;
 
+	(void)context;
 	if (!message)
 	{
 		message = ft_strdup("");
 		if (message == NULL)
-			exit(1);
+			err_ex("Error: strjoin fail\n");
 	}
 	if (signal == SIGUSR1)
 		current_char |= 1 << bit_index;
-	else if (signal == SIGUSR2)
+	else
 		current_char |= 0 << bit_index;
 	bit_index++;
 	if (bit_index == 8)
 	{
-		if (current_char == END_TRANSMISSION)
+		if (current_char == '\0')
 			print_msg(&message, info->si_pid);
 		else
 			message = msg_join(message, current_char);
 		bit_index = 0;
 		current_char = 0;
 	}
-	(void)context;
 }
 
 int	main(void)
@@ -86,9 +81,9 @@ int	main(void)
 	struct sigaction	server_sa;	
 
 	ft_printf("Server PID: %d\n", getpid());
-	sigemptyset(&server_sa.sa_mask);
 	server_sa.sa_flags = SA_SIGINFO;
 	server_sa.sa_sigaction = handle_signal;
+	sigemptyset(&server_sa.sa_mask);
 	sigaction(SIGUSR1, &server_sa, NULL);
 	sigaction(SIGUSR2, &server_sa, NULL);
 	while (1)

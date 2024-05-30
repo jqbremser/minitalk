@@ -6,17 +6,12 @@
 /*   By: jbremser <jbremser@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/21 13:54:07 by jbremser          #+#    #+#             */
-/*   Updated: 2024/05/24 13:49:07 by jbremser         ###   ########.fr       */
+/*   Updated: 2024/05/30 13:43:48 by jbremser         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft/libft.h"
 #include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-
-#define END_TRANSMISSION '\0'
 
 static void	err_ex(char *msg)
 {
@@ -25,11 +20,12 @@ static void	err_ex(char *msg)
 	exit(1);
 }
 
-static void	print_msg(char **message)
+static void	print_msg(char **message, int id)
 {
 	ft_printf("%s\n", *message);
 	free(*message);
 	*message = NULL;
+	(void)id;
 }
 
 static char	*msg_join(char *message, char curr_c)
@@ -51,17 +47,18 @@ static char	*msg_join(char *message, char curr_c)
 	return (final);
 }
 
-void	handle_signal(int signal)
+void	handle_signal(int signal, siginfo_t	*info, void	*context)
 {
 	static unsigned char	current_char = 0;
 	static int				bit_index = 0;
 	static char				*message;
 
+	(void)context;
 	if (!message)
 	{
 		message = ft_strdup("");
 		if (message == NULL)
-			exit(1);
+			err_ex("Error: strdup fail\n");
 	}
 	if (signal == SIGUSR1)
 		current_char |= 1 << bit_index;
@@ -70,8 +67,8 @@ void	handle_signal(int signal)
 	bit_index++;
 	if (bit_index == 8)
 	{
-		if (current_char == END_TRANSMISSION)
-			print_msg(&message);
+		if (current_char == '\0')
+			print_msg(&message, info->si_pid);
 		else
 			message = msg_join(message, current_char);
 		bit_index = 0;
@@ -81,9 +78,14 @@ void	handle_signal(int signal)
 
 int	main(void)
 {
+	struct sigaction	server_sa;	
+
 	ft_printf("Server PID: %d\n", getpid());
-	signal(SIGUSR1, handle_signal);
-	signal(SIGUSR2, handle_signal);
+	server_sa.sa_flags = SA_SIGINFO;
+	server_sa.sa_sigaction = handle_signal;
+	sigemptyset(&server_sa.sa_mask);
+	sigaction(SIGUSR1, &server_sa, NULL);
+	sigaction(SIGUSR2, &server_sa, NULL);
 	while (1)
 		pause ();
 	return (0);

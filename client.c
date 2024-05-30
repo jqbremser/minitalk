@@ -6,15 +6,12 @@
 /*   By: jbremser <jbremser@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/21 14:08:50 by jbremser          #+#    #+#             */
-/*   Updated: 2024/05/24 13:21:47 by jbremser         ###   ########.fr       */
+/*   Updated: 2024/05/30 14:19:08 by jbremser         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft/libft.h"
 #include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 
 void	send_signal(int pid, unsigned char character)
 {
